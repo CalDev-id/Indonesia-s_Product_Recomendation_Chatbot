@@ -1,5 +1,5 @@
 import argparse
-from RAG.rag import Rag
+from FAISS.RAG.rag import Rag
 import os
 
 def main():
