@@ -7,9 +7,9 @@ from sentence_transformers import SentenceTransformer
 class Preprocessor:
     def __init__(self):
         # Konversi CSV ke JSON
-        csv_file = '../RawData/data_products_id_tiny.csv'
+        csv_file = '../../rawdata/Tokopedia_Products.csv'  
         json_file = 'data_barang.json'
-        # self.convert_csv_to_json(csv_file, json_file)
+        self.convert_csv_to_json(csv_file, json_file)
 
         # Load JSON data
         with open(json_file, 'r') as f:
@@ -18,15 +18,15 @@ class Preprocessor:
         # Inisialisasi model embedding
         self.embedding_model = SentenceTransformer('sentence-transformers/multi-qa-mpnet-base-dot-v1')
 
-    # def convert_csv_to_json(self, csv_path, json_path):
-    #     """Membaca CSV dan menyimpan sebagai JSON"""
-    #     df = pd.read_csv(csv_path)
-    #     df.to_json(json_path, orient='records', indent=4)
+    def convert_csv_to_json(self, csv_path, json_path):
+        """Membaca CSV dan menyimpan sebagai JSON"""
+        df = pd.read_csv(csv_path)
+        df.to_json(json_path, orient='records', indent=4)
 
     def create_embeddings(self):
         # Membuat representasi teks gabungan dari JSON
         combined_texts = [
-            f"{item['name']} {item['shop_name']} {item['main_category']} {item['sub_category']}"
+            f"{item['title']} {item['description']} {item['seller_name']}"
             for item in self.data
         ]
         
@@ -39,10 +39,10 @@ class Preprocessor:
         index.add(embeddings)
 
         # Simpan FAISS index
-        faiss.write_index(index, '../Database/faiss_index.index')
+        faiss.write_index(index, '../../Database/Faiss/faiss_index.index')
 
         # Simpan metadata JSON
-        with open('../Database/metadata.json', 'w') as f:
+        with open('../../Database/Faiss/metadata.json', 'w') as f:
             json.dump(self.data, f, indent=4)
 
 if __name__ == "__main__":
