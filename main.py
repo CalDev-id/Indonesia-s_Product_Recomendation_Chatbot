@@ -1,5 +1,5 @@
 import argparse
-from FAISS.RAG.rag import Rag
+from FAISS.RAG.rag_faiss import RagFaiss
 import os
 
 def main():
@@ -9,13 +9,22 @@ def main():
     # Set up argument parser
     parser = argparse.ArgumentParser(description="Search for product items.")
     parser.add_argument('query', type=str, help='The query to search for product items')
+    # parser.add_argument('-v', '--version', choices=['1', '2'], default=1, help='Model Version')
     args = parser.parse_args()
 
-    # Initialize RAG
-    rag = Rag()
+    config = vars(args)
 
-    # Perform search using the query from arguments
-    result = rag.rag_search(args.query)
+    # Get arguments values
+    query = config['query']
+    # version = int(config['version'])
+
+    rag = RagFaiss()
+
+    result = rag.rag_search(query)
+    # if version == 1:
+    #     result = rag.rag_search(query)
+    # else:
+    #     return
     
     # Print results
     print("Best Match Resource:", result['best_match'])
