@@ -6,13 +6,6 @@ from LLM.groq_runtime import GroqRunTime
 
 class RagFaiss:
     def __init__(self):
-        # Load Faiss index and metadata
-
-        # database only description
-        # self.index = faiss.read_index('Database/faiss_index.index')
-        # with open('Database/metadata.json', 'r') as f:
-        #     self.metadata = json.load(f)
-
         # database all
         self.index = faiss.read_index("C:/Users/haica/Documents/PAPER NLP/Indonesia-s_Product_Recomendation_Chatbot/Database/Faiss/faiss_index.index")
         with open("C:/Users/haica/Documents/PAPER NLP/Indonesia-s_Product_Recomendation_Chatbot/Database/Faiss/metadata.json", "r") as f:
@@ -39,19 +32,30 @@ class RagFaiss:
 
         return resources[most_similar_idx]
     
-    def rag_search(self, query):
-        # Step 1: Retrieve top-k resources from Faiss
-        retrieved_resources = self.search_faiss(query, k=50)
-
-        # Step 2: Sort resources based on similarity with the query
-        best_resource = self.sort_resources(query, retrieved_resources)
-
-        # Step 3: Reasoning using LLM (Groq LLaMA3-70B-8192)
+    def get_summary(self, query):
+        """ Menggunakan LLM untuk menyempurnakan query sebelum pencarian di Faiss """
         groq_run = GroqRunTime()
-        system_prompt = f"Anda adalah asisten pencarian barang berdasarkan deskripsi berbahasa indonesia. Berikut adalah detail barang yang paling mirip:\n{best_resource['title'], best_resource['description'], best_resource['seller_name']}"
+        system_prompt = "Anda adalah asisten pencarian barang berdasarkan deskripsi berbahasa Indonesia. Tolong ubah atau ringkas query pengguna agar lebih jelas untuk pencarian produk. dan hanya respon dengan ringkasan query pengguna agar lebih jelas untuk pencarian produk."
         response = groq_run.generate_response(system_prompt, query)
+        return response.choices[0].message.content
+    
+    def rag_search(self, query):
+        # Step 1: Perbaiki atau ringkas query menggunakan LLM
+        refined_query = self.get_summary(query)
+
+        # Step 2: Retrieve top-k resources from Faiss
+        retrieved_resources = self.search_faiss(refined_query, k=50)
+
+        # Step 3: Sort resources based on similarity with the refined query
+        best_resource = self.sort_resources(refined_query, retrieved_resources)
+
+        # Step 4: Gunakan LLM untuk memberikan jawaban yang lebih informatif berdasarkan hasil pencarian
+        groq_run = GroqRunTime()
+        system_prompt = f"Anda adalah asisten pencarian barang berdasarkan deskripsi berbahasa Indonesia. Berikut adalah detail barang yang paling mirip:\n{best_resource['title']}, {best_resource['description']}, {best_resource['seller_name']}"
+        response = groq_run.generate_response(system_prompt, refined_query)
 
         return {
             "best_match": best_resource,
+            "refined_query": refined_query,
             "llm_response": response.choices[0].message.content
         }

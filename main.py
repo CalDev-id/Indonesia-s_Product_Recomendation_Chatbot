@@ -28,6 +28,7 @@ def main():
     
     # Print results
     print("Best Match Resource:", result['best_match'])
+    print("Refined Query:", result['refined_query'])
     print("LLM Response:", result['llm_response'])
 
 if __name__ == "__main__":
