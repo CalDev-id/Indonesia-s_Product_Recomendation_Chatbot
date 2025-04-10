@@ -5,27 +5,17 @@ from RAG.FaissDB.rag_faiss import RagFaiss
 from RAG.ChromaDB.rag_chroma import RagChroma
 from bert_score import score
 
-# Fungsi untuk membaca file test_data.json
-def load_test_data(file_path):
-    with open(file_path, 'r') as f:
-        return json.load(f)
-
-# Fungsi untuk memilih RAG (Faiss atau Chroma)
 def load_rag(db_choice):
-    if db_choice == 'faiss':
-        return RagFaiss()
-    elif db_choice == 'chroma':
-        return RagChroma()
-    else:
-        raise ValueError("Invalid database choice. Use 'faiss' or 'chroma'.")
+    return RagFaiss() if db_choice == 'faiss' else RagChroma()
 
-# Fungsi untuk mengevaluasi BERTScore
 def evaluate_bert_score(candidates, references):
     P, R, F1 = score(candidates, references, lang="en", verbose=False)
     return P.mean().item(), R.mean().item(), F1.mean().item(), F1
 
-# Fungsi untuk menjalankan batch testing pada RAG
-def run_batch_test(rag, test_data):
+def run_batch_test(test_file, rag):
+    with open(test_file, 'r') as f:
+        test_data = json.load(f)
+
     candidates = []
     references = []
 
@@ -59,21 +49,14 @@ def run_batch_test(rag, test_data):
 def main():
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-    # Set up argument parser
-    parser = argparse.ArgumentParser(description="Search for product items using Faiss or ChromaDB.")
-    parser.add_argument('db', choices=['faiss', 'chroma'], help='Choose the database for retrieval (faiss or chroma)')
+    # Modify the argument parser to support --test_file
+    parser = argparse.ArgumentParser(description="Batch test RAG chatbot with BERTScore evaluation.")
+    parser.add_argument('--test_file', type=str, default='test_data.json', help='Path to test JSON file')
+    parser.add_argument('--db', choices=['faiss', 'chroma'], default='faiss', help='Choose database (faiss or chroma)')
     args = parser.parse_args()
 
-    # Load test data from JSON file (hardcoded path)
-    test_data_file = 'test_data.json'
-    test_data = load_test_data(test_data_file)
-
-    # Load RAG model based on chosen DB
-    db_choice = args.db
-    rag = load_rag(db_choice)
-
-    # Run batch test on RAG model with test data
-    run_batch_test(rag, test_data)
+    rag = load_rag(args.db)
+    run_batch_test(args.test_file, rag)
 
 if __name__ == "__main__":
     main()
