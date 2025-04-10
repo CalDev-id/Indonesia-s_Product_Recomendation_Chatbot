@@ -1,10 +1,42 @@
 [
-    {
+  {
       "query": "Headset bass jernih",
-      "ground_truth": "Sony WH-1000XM5 dengan bass kuat dan noise cancelling"
-    },
-    {
+      "ground_truth": "Headset dengan suara bass kuat dan kejernihan tinggi"
+  },
+  {
       "query": "Smartphone kamera bagus",
-      "ground_truth": "Samsung Galaxy S23 Ultra dengan kamera 200MP"
-    }
+      "ground_truth": "Smartphone dengan kamera 108MP dan fitur AI"
+  },
+  {
+      "query": "Laptop ringan dan cepat",
+      "ground_truth": "Laptop dengan performa tinggi dan desain ringan"
+  },
+  {
+      "query": "Kulkas hemat energi",
+      "ground_truth": "Kulkas dengan konsumsi daya rendah dan fitur modern"
+  },
+  {
+      "query": "Earphone suara jelas",
+      "ground_truth": "Earphone dengan kualitas suara yang sangat jelas"
+  },
+  {
+      "query": "Smartwatch tahan air",
+      "ground_truth": "Smartwatch dengan fitur tahan air dan pelacakan kebugaran"
+  },
+  {
+      "query": "Kamera DSLR murah",
+      "ground_truth": "Kamera DSLR dengan harga terjangkau namun fitur lengkap"
+  },
+  {
+      "query": "Smartphone dengan daya tahan baterai lama",
+      "ground_truth": "Smartphone dengan baterai besar dan daya tahan hingga 2 hari"
+  },
+  {
+      "query": "Tablet layar besar",
+      "ground_truth": "Tablet dengan layar lebar dan resolusi tinggi"
+  },
+  {
+      "query": "Suplemen vitamin C",
+      "ground_truth": "Suplemen vitamin C dengan dosis tinggi dan cepat diserap"
+  }
 ]

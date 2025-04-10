@@ -1,60 +1,79 @@
-import json
-import subprocess
-from bert_score import score
 import argparse
+import os
+import json
+from RAG.FaissDB.rag_faiss import RagFaiss
+from RAG.ChromaDB.rag_chroma import RagChroma
+from bert_score import score
 
-def run_main_py(query, db='faiss'):
-    """
-    Jalankan main.py secara subprocess dan ambil output LLM response-nya.
-    """
-    result = subprocess.run(
-        ['python', 'main.py', query, '--db', db],
-        capture_output=True,
-        text=True
-    )
-    output = result.stdout.splitlines()
-    llm_response = ""
-    for line in output:
-        if line.startswith("LLM Response:"):
-            llm_response = line.replace("LLM Response:", "").strip()
-            break
-    return llm_response
+# Fungsi untuk membaca file test_data.json
+def load_test_data(file_path):
+    with open(file_path, 'r') as f:
+        return json.load(f)
 
-def evaluate(test_file_path, db='faiss'):
-    with open(test_file_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+# Fungsi untuk memilih RAG (Faiss atau Chroma)
+def load_rag(db_choice):
+    if db_choice == 'faiss':
+        return RagFaiss()
+    elif db_choice == 'chroma':
+        return RagChroma()
+    else:
+        raise ValueError("Invalid database choice. Use 'faiss' or 'chroma'.")
 
-    queries = [item['query'] for item in data]
-    ground_truth = [item['ground_truth'] for item in data]
-    preds = []
+# Fungsi untuk mengevaluasi BERTScore
+def evaluate_bert_score(candidates, references):
+    P, R, F1 = score(candidates, references, lang="en", verbose=False)
+    return P.mean().item(), R.mean().item(), F1.mean().item(), F1
+
+# Fungsi untuk menjalankan batch testing pada RAG
+def run_batch_test(rag, test_data):
+    candidates = []
+    references = []
 
     print("🔍 Testing RAG results...\n")
-    for item in data:
-        query = item['query']
-        print(f"🧠 Query: {query}")
-        pred = run_main_py(query, db)
-        print(f"✅ LLM Response: {pred}")
-        preds.append(pred)
-        print()
 
-    # Evaluasi BERTScore
-    P, R, F1 = score(preds, ground_truth, lang='id')
+    for item in test_data:
+        query = item['query']
+        ground_truth = item['ground_truth']
+
+        result = rag.rag_search(query)
+        llm_response = result.get('llm_response', "").strip()
+
+        print(f"🧠 Query: {query}")
+        print(f"✅ LLM Response: {llm_response if llm_response else '[EMPTY]'}\n")
+
+        candidates.append(llm_response)
+        references.append(ground_truth)
+
+    precision, recall, avg_f1, all_f1 = evaluate_bert_score(candidates, references)
 
     print("=== 📊 Hasil Evaluasi BERTScore ===")
-    for i, (query, f1) in enumerate(zip(queries, F1)):
-        print(f"{i+1}. Query: {query}")
-        print(f"   F1 BERTScore: {f1:.4f}")
-        print()
+    for i, (item, f1_score) in enumerate(zip(test_data, all_f1), 1):
+        print(f"{i}. Query: {item['query']}")
+        print(f"   F1 BERTScore: {f1_score.item():.4f}\n")
 
     print("=== 📈 RATA-RATA ===")
-    print(f"Precision: {P.mean():.4f}")
-    print(f"Recall:    {R.mean():.4f}")
-    print(f"F1 Score:  {F1.mean():.4f}")
+    print(f"Precision: {precision:.4f}")
+    print(f"Recall:    {recall:.4f}")
+    print(f"F1 Score:  {avg_f1:.4f}")
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--db', choices=['faiss', 'chroma'], default='faiss', help='Choose the database for retrieval')
-    parser.add_argument('--test_file', type=str, default='test_data.json', help='Path to test JSON file')
+def main():
+    os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
+    # Set up argument parser
+    parser = argparse.ArgumentParser(description="Search for product items using Faiss or ChromaDB.")
+    parser.add_argument('db', choices=['faiss', 'chroma'], help='Choose the database for retrieval (faiss or chroma)')
     args = parser.parse_args()
 
-    evaluate(args.test_file, args.db)
+    # Load test data from JSON file (hardcoded path)
+    test_data_file = 'test_data.json'
+    test_data = load_test_data(test_data_file)
+
+    # Load RAG model based on chosen DB
+    db_choice = args.db
+    rag = load_rag(db_choice)
+
+    # Run batch test on RAG model with test data
+    run_batch_test(rag, test_data)
+
+if __name__ == "__main__":
+    main()
