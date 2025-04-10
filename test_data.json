@@ -1,0 +1,10 @@
+[
+    {
+      "query": "Headset bass jernih",
+      "ground_truth": "Sony WH-1000XM5 dengan bass kuat dan noise cancelling"
+    },
+    {
+      "query": "Smartphone kamera bagus",
+      "ground_truth": "Samsung Galaxy S23 Ultra dengan kamera 200MP"
+    }
+]
