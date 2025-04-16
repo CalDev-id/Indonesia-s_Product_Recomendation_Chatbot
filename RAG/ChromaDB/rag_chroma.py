@@ -54,7 +54,7 @@ class RagChroma:
     
     def sort_resources(self, query, resources):
         combined_texts = [
-            f"{r.get('title', '')} {r.get('seller_name', '')} {r.get('final_price', '')} {r.get('description', '')}"
+            f"{r.get('title', '')} {r.get('description', '')} {r.get('categories', '')} {r.get('breadcrumbs', '')}"
             for r in resources
         ]
         resource_embeddings = self.embedding_model.encode(combined_texts)
@@ -79,7 +79,7 @@ class RagChroma:
         best_resource = self.sort_resources(refined_query, retrieved_resources)
 
         groq_run = GroqRunTime()
-        system_prompt = f"Anda adalah asisten pencarian barang berdasarkan deskripsi berbahasa Indonesia. Berikut adalah detail barang yang paling mirip:\n{best_resource}"
+        system_prompt = f"Anda adalah asisten pencarian barang berdasarkan deskripsi berbahasa Indonesia. jawab pertanyaan user berdasarkan informasi produk ini:\n judul produk :{best_resource['title']}, deskripsi:{best_resource['description']}, kategori:{best_resource['categories']}, Harga:{best_resource['final_price']}, nama penjual:{best_resource['seller_name']}, link produk:{best_resource['url']}"
         response = groq_run.generate_response(system_prompt, query)
 
         return {

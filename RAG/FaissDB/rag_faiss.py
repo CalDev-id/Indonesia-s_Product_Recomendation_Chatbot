@@ -43,7 +43,7 @@ class RagFaiss:
         best_resource = self.sort_resources(refined_query, retrieved_resources)
 
         groq_run = GroqRunTime()
-        system_prompt = f"Anda adalah asisten pencarian barang berdasarkan deskripsi berbahasa Indonesia. Berikut adalah detail barang yang paling mirip:\n{best_resource['title']}, {best_resource['description']}, {best_resource['seller_name']}"
+        system_prompt = f"Anda adalah asisten pencarian barang berdasarkan deskripsi berbahasa Indonesia. jawab pertanyaan user berdasarkan informasi produk ini:\n judul produk :{best_resource['title']}, deskripsi:{best_resource['description']}, kategori:{best_resource['categories']}, Harga:{best_resource['final_price']}, nama penjual:{best_resource['seller_name']}, link produk:{best_resource['url']}"
         response = groq_run.generate_response(system_prompt, refined_query)
 
         return {
