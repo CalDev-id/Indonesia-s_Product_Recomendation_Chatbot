@@ -77,18 +77,17 @@ class Preprocessor:
         df.to_json(json_path, orient='records', indent=4)
 
     def clean_text(self, text):
-        """Membersihkan teks dari karakter aneh dan whitespace berlebih"""
-        if not isinstance(text, str):
-            return ""
-        text = text.replace('\r', ' ').replace('\n', ' ').replace('\t', ' ')
-        text = re.sub(r'\s+', ' ', text)  # Hapus spasi berlebih
-        return text.strip()
+        if isinstance(text, str):
+            text = text.replace('\r', ' ').replace('\n', ' ').replace('\t', ' ')
+            text = re.sub(r'\s+', ' ', text)
+            return text.strip()
+        return text  # biarkan nilai non-str tetap seperti semula
 
     def clean_data(self):
-        """Membersihkan semua field dalam data"""
         for item in self.data:
             for key in item:
                 item[key] = self.clean_text(item[key])
+
 
     def create_embeddings(self):
         # Bersihkan data terlebih dahulu

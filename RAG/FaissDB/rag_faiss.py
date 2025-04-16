@@ -7,8 +7,8 @@ from LLM.groq_runtime import GroqRunTime
 class RagFaiss:
     def __init__(self):
         # database all
-        self.index = faiss.read_index("/Users/cal/Documents/Coding/Python/Indonesia’s_Product_Recomendation_Chatbot_using_Product_Description/Database/Faiss/faiss_index.index")
-        with open("/Users/cal/Documents/Coding/Python/Indonesia’s_Product_Recomendation_Chatbot_using_Product_Description/Database/Faiss/metadata.json", "r") as f:
+        self.index = faiss.read_index("C:/Users/haica/Documents/PAPER NLP/Indonesia-s_Product_Recomendation_Chatbot/Database/Faiss/faiss_index.index")
+        with open("C:/Users/haica/Documents/PAPER NLP/Indonesia-s_Product_Recomendation_Chatbot/Database/Faiss/metadata.json", "r") as f:
             self.metadata = json.load(f)
 
         self.embedding_model = SentenceTransformer('sentence-transformers/multi-qa-mpnet-base-dot-v1')

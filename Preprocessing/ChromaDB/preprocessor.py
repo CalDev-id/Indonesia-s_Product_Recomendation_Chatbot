@@ -58,14 +58,15 @@ class Preprocessor:
         return data
 
     def clean_text(self, text):
-        if not isinstance(text, str):
-            return ""
-        text = text.replace("\r", " ").replace("\n", " ").replace("\t", " ")
-        text = re.sub(r'\s+', ' ', text).strip()  # Menghilangkan spasi berlebih
-        return text
+        """Membersihkan teks jika bertipe string, biarkan nilai non-string tetap."""
+        if isinstance(text, str):
+            text = text.replace("\r", " ").replace("\n", " ").replace("\t", " ")
+            text = re.sub(r'\s+', ' ', text).strip()
+            return text
+        return text  # biarkan angka, float, atau tipe lain tetap
 
     def clean_metadata(self, item):
-        """ Menghapus nilai None dari metadata dan membersihkan teks """
+        """ Membersihkan teks untuk string dan melewati nilai non-string dengan aman """
         return {k: self.clean_text(v) if v is not None else "" for k, v in item.items()}
 
     def create_embeddings_and_store(self):
