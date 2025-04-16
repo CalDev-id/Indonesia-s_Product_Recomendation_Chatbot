@@ -96,7 +96,7 @@ class Preprocessor:
 
         # Buat representasi teks gabungan
         combined_texts = [
-            f"{item.get('title', '')} {item.get('description', '')} {item.get('seller_name', '')}"
+            f"{item.get('title', '')} {item.get('description', '')} {item.get('categories', '')} {item.get('breadcrumbs', '')}"
             for item in self.data
         ]
 
